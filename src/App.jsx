@@ -1,44 +1,64 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout'; // Added our App Shell layout
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { UserRightsProvider } from './contexts/UserRightsContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import AppShell from './components/layout/AppShell'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import AuthCallbackPage from './pages/AuthCallbackPage'
+import ProductsPage from './pages/ProductsPage'
+import DeletedItemsPage from './pages/DeletedItemsPage'
+import ReportsPage from './pages/ReportsPage'
+import AdminPage from './pages/AdminPage'
 
-// Import all pages exactly once
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import DeletedItems from './pages/DeletedItems';
-import AdminUsers from './pages/AdminUsers';
-import Reports from './pages/Reports';
-import Admin from './pages/Admin';
-import AuthCallback from './pages/AuthCallback';
-
-function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        
-        {/* Protected Routes (Wrapped in ProtectedRoute AND Layout) */}
-        <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin-users" element={<AdminUsers />} />
-          <Route path="/deleted-items" element={<DeletedItems />} />
-        </Route>
-
-        {/* Catch-all redirect for any typos in the URL */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
-  );
+function AdminRoute({ children }) {
+  const { currentUser } = useAuth()
+  if (!['ADMIN', 'SUPERADMIN'].includes(currentUser?.user_type)) {
+    return <Navigate to="/products" replace />
+  }
+  return children
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <UserRightsProvider>
+          <Routes>
+            <Route path="/login"         element={<LoginPage />} />
+            <Route path="/register"      element={<RegisterPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/" element={<Navigate to="/products" replace />} />
+
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/products" element={<ProductsPage />} />
+              <Route
+                path="/deleted-items"
+                element={
+                  <AdminRoute>
+                    <DeletedItemsPage />
+                  </AdminRoute>
+                }
+              />
+              <Route path="/reports/*" element={<ReportsPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminPage />
+                  </AdminRoute>
+                }
+              />
+            </Route>
+          </Routes>
+        </UserRightsProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
