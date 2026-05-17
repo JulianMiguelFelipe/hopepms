@@ -5,7 +5,7 @@ import { getProducts, getCurrentPrices } from '../services/productService'
 import AddProductModal from '../components/products/AddProductModal'
 import EditProductModal from '../components/products/EditProductModal'
 import SoftDeleteConfirmDialog from '../components/products/SoftDeleteConfirmDialog'
-import PriceHistoryPanel from '../components/products/PriceHistoryPanel'
+import PriceHistoryModal from '../components/products/PriceHistoryModal'
 
 const IconEdit = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
@@ -22,6 +22,14 @@ const IconTrash = () => (
     <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
     <path d="M10 11v6M14 11v6"/>
     <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+  </svg>
+)
+
+const IconHistory = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
   </svg>
 )
 
@@ -45,7 +53,7 @@ function exportToCSV(rows, prices, showStamp) {
     prices[p.prodCode] != null ? parseFloat(prices[p.prodCode]).toFixed(2) : '',
     ...(showStamp ? [`"${p.stamp || ''}"`] : [])
   ])
-  const csv = [headers.join(','), ...csvRows.map(r => r.join(','))].join('\n')
+  const csv  = [headers.join(','), ...csvRows.map(r => r.join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
@@ -59,19 +67,20 @@ export default function ProductsPage() {
   const { currentUser } = useAuth()
   const rights = useRights()
 
-  const [products, setProducts]         = useState([])
-  const [prices, setPrices]             = useState({})
-  const [loading, setLoading]           = useState(true)
-  const [showAdd, setShowAdd]           = useState(false)
-  const [editTarget, setEditTarget]     = useState(null)
-  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [products, setProducts]             = useState([])
+  const [prices, setPrices]                 = useState({})
+  const [loading, setLoading]               = useState(true)
+  const [showAdd, setShowAdd]               = useState(false)
+  const [editTarget, setEditTarget]         = useState(null)
+  const [deleteTarget, setDeleteTarget]     = useState(null)
+  const [historyTarget, setHistoryTarget]   = useState(null)
 
-  const [search, setSearch]         = useState('')
-  const [unitFilter, setUnitFilter] = useState('All')
-  const [sortCol, setSortCol]       = useState('prodCode')
-  const [sortDir, setSortDir]       = useState('asc')
+  const [search, setSearch]             = useState('')
+  const [unitFilter, setUnitFilter]     = useState('All')
+  const [sortCol, setSortCol]           = useState('prodCode')
+  const [sortDir, setSortDir]           = useState('asc')
   const [entriesInput, setEntriesInput] = useState('')
-  const [page, setPage]             = useState(1)
+  const [page, setPage]                 = useState(1)
 
   const showStamp = ['ADMIN', 'SUPERADMIN'].includes(currentUser?.user_type)
   const canAdd    = rights.PRD_ADD  === 1
@@ -85,7 +94,6 @@ export default function ProductsPage() {
       const { data } = await getProducts()
       setProducts(data || [])
     } catch (e) {
-      console.error('Products load error:', e)
       setProducts([])
     }
   }
@@ -96,9 +104,7 @@ export default function ProductsPage() {
       const priceMap = {}
       priceData?.forEach(p => { priceMap[p.prodCode] = p.unitPrice })
       setPrices(priceMap)
-    } catch (e) {
-      console.error('Prices load error:', e)
-    }
+    } catch (e) {}
   }
 
   const load = async () => {
@@ -107,13 +113,10 @@ export default function ProductsPage() {
     setLoading(false)
   }
 
-  useEffect(() => {
-    if (currentUser) load()
-  }, [currentUser])
-
+  useEffect(() => { if (currentUser) load() }, [currentUser])
   useEffect(() => { setPage(1) }, [search, unitFilter, sortCol, sortDir, entriesInput])
 
-  const handleSort = (col) => {
+  const handleSort = col => {
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
     else { setSortCol(col); setSortDir('asc') }
   }
@@ -126,7 +129,7 @@ export default function ProductsPage() {
       const matchUnit = unitFilter === 'All' || p.unit === unitFilter
       return matchSearch && matchUnit
     })
-    rows = [...rows].sort((a, b) => {
+    return [...rows].sort((a, b) => {
       let aVal = sortCol === 'unitPrice'
         ? parseFloat(prices[a.prodCode] || 0)
         : (a[sortCol] || '').toString().toLowerCase()
@@ -137,7 +140,6 @@ export default function ProductsPage() {
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
       return 0
     })
-    return rows
   }, [products, prices, search, unitFilter, sortCol, sortDir])
 
   const paginated  = pageSize ? filtered.slice((page - 1) * pageSize, page * pageSize) : filtered
@@ -152,6 +154,7 @@ export default function ProductsPage() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Products</h2>
         {canAdd && (
@@ -166,7 +169,6 @@ export default function ProductsPage() {
 
       {/* Toolbar */}
       <div className="bg-white border border-gray-200 rounded-xl p-3 mb-3 flex flex-wrap gap-3 items-center">
-        {/* Search */}
         <div className="relative flex-1 min-w-[180px] max-w-xs">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -178,7 +180,6 @@ export default function ProductsPage() {
           />
         </div>
 
-        {/* Unit filter */}
         <div className="flex items-center gap-1.5">
           <label className="text-xs text-gray-500 whitespace-nowrap">Unit:</label>
           <select value={unitFilter} onChange={e => setUnitFilter(e.target.value)}
@@ -187,11 +188,9 @@ export default function ProductsPage() {
           </select>
         </div>
 
-        {/* Entries number input */}
         <div className="flex items-center gap-1.5">
           <label className="text-xs text-gray-500 whitespace-nowrap">Show:</label>
-          <input
-            type="number" min="1" placeholder="All"
+          <input type="number" min="1" placeholder="All"
             value={entriesInput} onChange={e => setEntriesInput(e.target.value)}
             className="w-20 border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -200,7 +199,6 @@ export default function ProductsPage() {
 
         <div className="flex-1" />
 
-        {/* Export CSV */}
         <button onClick={() => exportToCSV(filtered, prices, showStamp)}
           className="flex items-center gap-1.5 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -231,15 +229,14 @@ export default function ProductsPage() {
                   <SortTh col="description" label="Description" />
                   <SortTh col="unit"        label="Unit" />
                   <SortTh col="unitPrice"   label="Current Price" />
-                  <th className="px-4 py-3">Price History</th>
                   {showStamp && <th className="px-4 py-3">Stamp</th>}
-                  {(canEdit || canDelete) && <th className="px-4 py-3 text-center">Actions</th>}
+                  <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {paginated.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-10 text-center text-gray-400">No products found.</td>
+                    <td colSpan={7} className="px-4 py-10 text-center text-gray-400">No products found.</td>
                   </tr>
                 )}
                 {paginated.map(p => (
@@ -251,36 +248,33 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {prices[p.prodCode] != null
-                        ? <span>₱ {parseFloat(prices[p.prodCode]).toFixed(2)}</span>
+                        ? <span>$ {parseFloat(prices[p.prodCode]).toFixed(2)}</span>
                         : <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <PriceHistoryPanel
-                        prodCode={p.prodCode}
-                        onPriceAdded={loadPrices}
-                      />
                     </td>
                     {showStamp && (
                       <td className="px-4 py-3 text-xs text-gray-400 max-w-[160px] truncate">{p.stamp || '—'}</td>
                     )}
-                    {(canEdit || canDelete) && (
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1.5 justify-center">
-                          {canEdit && (
-                            <button onClick={() => setEditTarget(p)} title="Edit product"
-                              className="bg-green-500 hover:bg-green-600 text-white rounded-lg p-1.5 transition-colors">
-                              <IconEdit />
-                            </button>
-                          )}
-                          {canDelete && (
-                            <button onClick={() => setDeleteTarget(p)} title="Delete product"
-                              className="bg-red-500 hover:bg-red-600 text-white rounded-lg p-1.5 transition-colors">
-                              <IconTrash />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    )}
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1.5 justify-center">
+                        {/* Price History button */}
+                        <button onClick={() => setHistoryTarget(p)} title="Price history"
+                          className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-1.5 transition-colors">
+                          <IconHistory />
+                        </button>
+                        {canEdit && (
+                          <button onClick={() => setEditTarget(p)} title="Edit product"
+                            className="bg-green-500 hover:bg-green-600 text-white rounded-lg p-1.5 transition-colors">
+                            <IconEdit />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button onClick={() => setDeleteTarget(p)} title="Delete product"
+                            className="bg-red-500 hover:bg-red-600 text-white rounded-lg p-1.5 transition-colors">
+                            <IconTrash />
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -301,8 +295,7 @@ export default function ProductsPage() {
                     <button key={p} onClick={() => setPage(p)}
                       className={`px-2 py-1 text-xs border rounded ${page === p
                         ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-gray-300 hover:bg-gray-50'}`}
-                    >{p}</button>
+                        : 'border-gray-300 hover:bg-gray-50'}`}>{p}</button>
                   )
                 })}
                 <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
@@ -315,12 +308,15 @@ export default function ProductsPage() {
         </>
       )}
 
-      {showAdd && <AddProductModal onClose={() => setShowAdd(false)} onSaved={load} />}
-      {editTarget && (
-        <EditProductModal product={editTarget} onClose={() => setEditTarget(null)} onSaved={load} />
-      )}
-      {deleteTarget && (
-        <SoftDeleteConfirmDialog product={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={load} />
+      {showAdd      && <AddProductModal onClose={() => setShowAdd(false)} onSaved={load} />}
+      {editTarget   && <EditProductModal product={editTarget} onClose={() => setEditTarget(null)} onSaved={load} />}
+      {deleteTarget && <SoftDeleteConfirmDialog product={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={load} />}
+      {historyTarget && (
+        <PriceHistoryModal
+          product={historyTarget}
+          onClose={() => setHistoryTarget(null)}
+          onPriceAdded={loadPrices}
+        />
       )}
     </div>
   )
