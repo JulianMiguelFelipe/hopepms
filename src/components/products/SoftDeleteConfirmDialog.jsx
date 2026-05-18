@@ -9,7 +9,7 @@ export default function SoftDeleteConfirmDialog({ product, onClose, onDeleted })
 
   const handleConfirm = async () => {
     setLoading(true)
-    const err = await softDeleteProduct(product.prodCode, currentUser.id)
+    const err = await softDeleteProduct(product.prodCode, currentUser.username)
     if (err) setError(err.message)
     else { onDeleted(); onClose() }
     setLoading(false)
@@ -25,24 +25,12 @@ export default function SoftDeleteConfirmDialog({ product, onClose, onDeleted })
         <p className="text-xs text-gray-400 mb-4">
           The product will be hidden from all users. ADMIN and SUPERADMIN can recover it later.
         </p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded px-3 py-2 mb-3">
-            {error}
-          </div>
-        )}
-
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded px-3 py-2 mb-3">{error}</div>}
         <div className="flex gap-2 justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm} disabled={loading}
-            className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-          >
+          <button onClick={onClose}
+            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
+          <button onClick={handleConfirm} disabled={loading}
+            className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
             {loading ? 'Deleting...' : 'Delete'}
           </button>
         </div>

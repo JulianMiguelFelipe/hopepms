@@ -19,7 +19,7 @@ export async function getDeletedProducts() {
   return { data, error }
 }
 
-export async function addProduct(product, userId) {
+export async function addProduct(product, username) {
   const { error } = await supabase
     .from('product')
     .insert({
@@ -27,31 +27,31 @@ export async function addProduct(product, userId) {
       description:   product.description,
       unit:          product.unit,
       record_status: 'ACTIVE',
-      stamp:         makeStamp('ADDED', userId),
+      stamp:         makeStamp('ADDED', username),
     })
   return error
 }
 
-export async function updateProduct(prodCode, fields, userId) {
+export async function updateProduct(prodCode, fields, username) {
   const { error } = await supabase
     .from('product')
-    .update({ ...fields, stamp: makeStamp('EDITED', userId) })
+    .update({ ...fields, stamp: makeStamp('EDITED', username) })
     .eq('prodCode', prodCode)
   return error
 }
 
-export async function softDeleteProduct(prodCode, userId) {
+export async function softDeleteProduct(prodCode, username) {
   const { error } = await supabase
     .from('product')
-    .update({ record_status: 'INACTIVE', stamp: makeStamp('DEACTIVATED', userId) })
+    .update({ record_status: 'INACTIVE', stamp: makeStamp('DEACTIVATED', username) })
     .eq('prodCode', prodCode)
   return error
 }
 
-export async function recoverProduct(prodCode, userId) {
+export async function recoverProduct(prodCode, username) {
   const { error } = await supabase
     .from('product')
-    .update({ record_status: 'ACTIVE', stamp: makeStamp('REACTIVATED', userId) })
+    .update({ record_status: 'ACTIVE', stamp: makeStamp('REACTIVATED', username) })
     .eq('prodCode', prodCode)
   return error
 }
@@ -65,14 +65,14 @@ export async function getPriceHistory(prodCode) {
   return { data, error }
 }
 
-export async function addPriceEntry(prodCode, effDate, unitPrice, userId) {
+export async function addPriceEntry(prodCode, effDate, unitPrice, username) {
   const { error } = await supabase
     .from('priceHist')
     .insert({
       prodCode,
       effDate,
       unitPrice,
-      stamp: makeStamp('ADDED', userId),
+      stamp: makeStamp('ADDED', username),
     })
   return error
 }
