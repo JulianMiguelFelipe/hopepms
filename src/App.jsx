@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { UserRightsProvider } from './contexts/UserRightsContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -37,24 +37,10 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="/products" element={<ProductsPage />} />
-              <Route
-                path="/deleted-items"
-                element={
-                  <AdminRoute>
-                    <DeletedItemsPage />
-                  </AdminRoute>
-                }
-              />
-              <Route path="/reports/*" element={<ReportsPage />} />
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <AdminPage />
-                  </AdminRoute>
-                }
-              />
+              <Route path="/products"        element={<ProductsPage />} />
+              <Route path="/deleted-items"   element={<AdminRoute><DeletedItemsPage /></AdminRoute>} />
+              <Route path="/reports/*"       element={<ReportsPage />} />
+              <Route path="/admin"           element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
           </Routes>
         </UserRightsProvider>

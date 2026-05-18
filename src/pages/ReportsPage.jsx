@@ -1,9 +1,20 @@
-// ReportsPage.jsx
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import ProductReportPage from './reports/ProductReportPage'
+import TopSellingPage from './reports/ProductSalesPage'
+
 export default function ReportsPage() {
+  const { currentUser } = useAuth()
+  const isSuperAdmin = currentUser?.user_type === 'SUPERADMIN'
+
   return (
-    <div>
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Reports</h2>
-      <p className="text-gray-500 text-sm">Coming in Sprint 3.</p>
-    </div>
+    <Routes>
+      <Route index element={<Navigate to="product-list" replace />} />
+      <Route path="product-list" element={<ProductReportPage />} />
+      <Route
+        path="top-selling"
+        element={isSuperAdmin ? <TopSellingPage /> : <Navigate to="product-list" replace />}
+      />
+    </Routes>
   )
 }
