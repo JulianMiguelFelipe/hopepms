@@ -1,43 +1,66 @@
-// src/pages/RegisterPage.jsx (Version A)
+// src/pages/LoginPage.jsx (Version A - Improved)
 import React, { useState } from 'react';
 
-export const RegisterPage = ({ onRegister }) => {
-  const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
-  const [error, setError] = useState('');
+export const LoginPage = ({ onLogin, onGoogleLogin }) => {
+  // Pinagsama natin sa isang object para mas malinis ang state management
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { type, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      return;
+    setIsLoading(true);
+    try {
+      // Hihintayin natin matapos yung login process
+      await onLogin(formData);
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false); // Babalik sa normal ang button kahit mag-success o error
     }
-    setError('');
-    // BUG HERE: Aksidenteng naipasa ang password string sa email parameter field
-    onRegister({ email: formData.password }); 
   };
 
   return (
     <div className="auth-card">
-      <h2>Create Account</h2>
-      {error && <p className="error-text">{error}</p>}
+      <h2>Welcome Back</h2>
       <form onSubmit={handleSubmit}>
         <input 
           type="email" 
-          placeholder="Email"
-          onChange={e => setFormData({...formData, email: e.target.value})}
+          placeholder="Email Address" 
+          value={formData.email} 
+          onChange={handleChange} 
+          disabled={isLoading} // Hindi pwedeng i-edit habang naglo-load
+          required 
         />
         <input 
           type="password" 
-          placeholder="Password"
-          onChange={e => setFormData({...formData, password: e.target.value})}
+          placeholder="Password" 
+          value={formData.password} 
+          onChange={handleChange} 
+          disabled={isLoading}
+          required 
         />
-        <input 
-          type="password" 
-          placeholder="Confirm Password"
-          onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
-        />
-        <button type="submit">Register</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Signing In...' : 'Sign In'}
+        </button>
       </form>
+      
+      <div className="divider">or</div>
+      
+      <button 
+        onClick={onGoogleLogin} 
+        className="google-btn"
+        disabled={isLoading}
+      >
+        Continue with Google
+      </button>
     </div>
   );
 };
