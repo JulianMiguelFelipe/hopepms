@@ -37,8 +37,14 @@ export default function LoginPage() {
   const displayError = error || authError
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-6 antialiased">
-      <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 w-full max-w-md p-8 sm:p-10">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-6 antialiased relative"
+      style={{ backgroundImage: "url('https://media.licdn.com/dms/image/v2/C561BAQGUxB_pssZkJA/company-background_10000/company-background_10000/0/1591598531597/new_era_university_official_cover?e=2147483647&v=beta&t=F_JgSz6bKmQ4QdmSivXkthtoQ-7j0KNvpoWiwut8y8A')" }}
+    >
+      {/* Background Overlay to ensure contrast */}
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm z-0" />
+
+      <div className="bg-white rounded-2xl shadow-xl shadow-gray-900/30 border border-gray-100 w-full max-w-md p-8 sm:p-10 relative z-10">
         
         {/* Header section */}
         <div className="text-center mb-8">

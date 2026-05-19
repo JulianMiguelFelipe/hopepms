@@ -29,7 +29,7 @@ export default function RegisterPage() {
     })
     if (err) setError(err.message)
     else setSuccess(true)
-    setLoading(false)
+    loading(false)
   }
 
   const handleGoogleRegister = () => {
@@ -41,8 +41,14 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 w-full max-w-sm p-8 text-center">
+      <div 
+        className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 relative"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')" }}
+      >
+        {/* Background Overlay */}
+        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm z-0" />
+
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-sm p-8 text-center relative z-10">
           <div className="text-green-600 text-4xl mb-3">✓</div>
           <h2 className="font-semibold text-gray-800 mb-2">Check your email</h2>
           <p className="text-sm text-gray-500 mb-4">
@@ -61,8 +67,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 w-full max-w-sm p-8">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 relative"
+      style={{ backgroundImage: "url('https://media.licdn.com/dms/image/v2/C561BAQGUxB_pssZkJA/company-background_10000/company-background_10000/0/1591598531597/new_era_university_official_cover?e=2147483647&v=beta&t=F_JgSz6bKmQ4QdmSivXkthtoQ-7j0KNvpoWiwut8y8A')" }}
+    >
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm z-0" />
+
+      <div className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-sm p-8 relative z-10">
         <h1 className="text-xl font-semibold text-gray-800 mb-1">Create account</h1>
         <p className="text-sm text-gray-500 mb-6">Hope, Inc. — Product Management System</p>
 
