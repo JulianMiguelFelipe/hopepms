@@ -1,7 +1,7 @@
-// src/pages/UserManagementPage.jsx (Version A)
+// src/pages/UserManagementPage.jsx (Version B - Updated)
 import React from 'react';
 
-export const UserManagementPage = ({ structuralUsers = [], onKillSession }) => {
+export const UserManagementPage = ({ structuralUsers = [], activeOperatorRole, onKillSession }) => {
   return (
     <div className="management-view-panel">
       <h3>Operational Matrix Credentials Log</h3>
@@ -15,7 +15,18 @@ export const UserManagementPage = ({ structuralUsers = [], onKillSession }) => {
               <td>{profile.emailAddress}</td>
               <td>{profile.assignedSystemTier}</td>
               <td>
-                <button onClick={() => onKillSession(profile.id)}>Revoke Credentials</button>
+                {/* INAYOS: Row Level Action Protection Logic Implemented */}
+                {profile.assignedSystemTier === 'SUPERADMIN' ? (
+                  <span className="security-lockout-badge">⚠️ Immutable Core Master Identity</span>
+                ) : (
+                  <button 
+                    disabled={activeOperatorRole !== 'SUPERADMIN' && activeOperatorRole !== 'ADMIN'}
+                    onClick={() => onKillSession(profile.id)}
+                    className="btn-revoke-destructive"
+                  >
+                    Revoke Credentials
+                  </button>
+                )}
               </td>
             </tr>
           ))}
