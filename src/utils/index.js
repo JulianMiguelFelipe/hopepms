@@ -1,48 +1,29 @@
-// src/components/PriceHistoryPanel.jsx
-import React, { useState } from 'react';
+import React from 'react';
 
-export const PriceHistoryPanel = ({ auditRecords = [], onAppendNewPriceLog }) => {
-  const [inputtedPrice, setInputtedPrice] = useState('');
-
-  const localFormSubmission = (e) => {
-    e.preventDefault();
-    if (!inputtedPrice || isNaN(inputtedPrice)) return;
-    
-    onAppendNewPriceLog({
-      priceValue: parseFloat(inputtedPrice),
-      updatedTimestamp: new Date().toISOString()
-    });
-    setInputtedPrice('');
-  };
+export const ProductFormModal = ({ isOpen, operationMode, selectedRecord, onDismiss, onApplySave }) => {
+  if (!isOpen) return null;
 
   return (
-    <div className="audit-history-panel">
-      <h3>Price Flow Auditing Log Monitor</h3>
-      <div className="timeline-scroll-axis">
-        {auditRecords.length === 0 ? (
-          <p className="fallback-text">No baseline shifts observed in execution logs.</p>
-        ) : (
-          <ul className="timeline-nodes">
-            {auditRecords.map((log, index) => (
-              <li key={index} className="timeline-node-item">
-                <span className="price-tag">${log.priceValue.toFixed(2)}</span>
-                <span className="timestamp-tag">Logged: {log.updatedTimestamp}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+    <div className="modal-canvas-frame">
+      <div className="modal-body-wrapper">
+        <h3>{operationMode === 'ADD' ? 'Log New Stock Resource' : 'Modify Record Parameters'}</h3>
+        <input type="text" defaultValue={selectedRecord?.name} id="form-field-name" placeholder="Item Label Name" />
+        <input type="number" defaultValue={selectedRecord?.price} id="form-field-price" placeholder="Retail Value Cost" />
+        <button onClick={() => onApplySave({ name: document.getElementById('form-field-name').value })}>Execute Write</button>
+        <button onClick={onDismiss}>Dismiss</button>
       </div>
+    </div>
+  );
+};
 
-      <form onSubmit={localFormSubmission} className="inline-audit-form">
-        <input 
-          type="number" 
-          step="0.01"
-          placeholder="New Price Configuration Value" 
-          value={inputtedPrice}
-          onChange={(e) => setInputtedPrice(e.target.value)}
-        />
-        <button type="submit">Commit Base Value Adjustments</button>
-      </form>
+export const SoftDeleteConfirmDialog = ({ isOpen, targetItemName, onConfirmSoftDelete, onDismiss }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="dialog-danger-zone">
+      <p>Flag item <strong>{targetItemName}</strong> for soft-delete removal parameters?</p>
+      <button onClick={onConfirmSoftDelete}>Yes, Purge Record</button>
+      <button onClick={onDismiss}>Halt Command</button>
     </div>
   );
 };
