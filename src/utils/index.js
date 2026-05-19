@@ -1,66 +1,48 @@
-// src/pages/LoginPage.jsx (Version A - Improved)
+// src/components/PriceHistoryPanel.jsx
 import React, { useState } from 'react';
 
-export const LoginPage = ({ onLogin, onGoogleLogin }) => {
-  // Pinagsama natin sa isang object para mas malinis ang state management
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(false);
+export const PriceHistoryPanel = ({ auditRecords = [], onAppendNewPriceLog }) => {
+  const [inputtedPrice, setInputtedPrice] = useState('');
 
-  const handleChange = (e) => {
-    const { type, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const localFormSubmission = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      // Hihintayin natin matapos yung login process
-      await onLogin(formData);
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false); // Babalik sa normal ang button kahit mag-success o error
-    }
+    if (!inputtedPrice || isNaN(inputtedPrice)) return;
+    
+    onAppendNewPriceLog({
+      priceValue: parseFloat(inputtedPrice),
+      updatedTimestamp: new Date().toISOString()
+    });
+    setInputtedPrice('');
   };
 
   return (
-    <div className="auth-card">
-      <h2>Welcome Back</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="audit-history-panel">
+      <h3>Price Flow Auditing Log Monitor</h3>
+      <div className="timeline-scroll-axis">
+        {auditRecords.length === 0 ? (
+          <p className="fallback-text">No baseline shifts observed in execution logs.</p>
+        ) : (
+          <ul className="timeline-nodes">
+            {auditRecords.map((log, index) => (
+              <li key={index} className="timeline-node-item">
+                <span className="price-tag">${log.priceValue.toFixed(2)}</span>
+                <span className="timestamp-tag">Logged: {log.updatedTimestamp}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <form onSubmit={localFormSubmission} className="inline-audit-form">
         <input 
-          type="email" 
-          placeholder="Email Address" 
-          value={formData.email} 
-          onChange={handleChange} 
-          disabled={isLoading} // Hindi pwedeng i-edit habang naglo-load
-          required 
+          type="number" 
+          step="0.01"
+          placeholder="New Price Configuration Value" 
+          value={inputtedPrice}
+          onChange={(e) => setInputtedPrice(e.target.value)}
         />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={formData.password} 
-          onChange={handleChange} 
-          disabled={isLoading}
-          required 
-        />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Signing In...' : 'Sign In'}
-        </button>
+        <button type="submit">Commit Base Value Adjustments</button>
       </form>
-      
-      <div className="divider">or</div>
-      
-      <button 
-        onClick={onGoogleLogin} 
-        className="google-btn"
-        disabled={isLoading}
-      >
-        Continue with Google
-      </button>
     </div>
   );
 };
