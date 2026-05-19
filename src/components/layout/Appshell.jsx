@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
-
+// No row yet
 export default function AppShell() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
