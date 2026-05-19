@@ -128,7 +128,7 @@ function UserDetailsPanel({ user, onClose, actorUsername, isSuperAdmin, onRefres
   const handleSaveEdit = async () => {
     setEditLoading(true)
     setEditError('')
-    const { updateUserInfo } = await import('../services/userService')
+    const { updateUserInfo } = await import('../services/UserService')
     const err = await updateUserInfo(user.userId, form, actorUsername)
     if (err) setEditError(err.message)
     else { setEditMode(false); onRefresh() }
