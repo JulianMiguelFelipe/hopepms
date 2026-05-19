@@ -4,7 +4,7 @@ import {
   getAllUsers, getUserRights, getUserModules,
   updateUserInfo, activateUser, deactivateUser,
   updateUserType, updateRight,
-} from '../services/userService'
+} from '../services/UserService'
 
 // ── Constants ────────────────────────────────────────────────
 const STATUS_BADGE = {
@@ -128,7 +128,7 @@ function UserDetailsPanel({ user, onClose, actorUsername, isSuperAdmin, onRefres
   const handleSaveEdit = async () => {
     setEditLoading(true)
     setEditError('')
-    const { updateUserInfo } = await import('../services/userService')
+    const { updateUserInfo } = await import('../services/UserService')
     const err = await updateUserInfo(user.userId, form, actorUsername)
     if (err) setEditError(err.message)
     else { setEditMode(false); onRefresh() }
