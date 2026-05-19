@@ -4,7 +4,7 @@ import {
   getAllUsers, getUserRights, getUserModules,
   updateUserInfo, activateUser, deactivateUser,
   updateUserType, updateRight,
-} from '../services/userService'
+} from '../services/UserService'
 
 // ── Constants ────────────────────────────────────────────────
 const STATUS_BADGE = {
