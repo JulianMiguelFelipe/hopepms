@@ -1,25 +1,30 @@
-// src/components/PolishEnhancementsWrapper.jsx
 import React from 'react';
 
-export const GlobalComponentLoader = ({ processIsFetching, fallbackInstructionText }) => {
-  if (!processIsFetching) return null;
+export const ProductFormModal = ({ isOpen, operationMode, selectedRecord, onDismiss, onApplySave }) => {
+  if (!isOpen) return null;
+
   return (
-    <div className="unified-screen-loader-overlay">
-      <div className="spinning-radial-node"></div>
-      <p className="loader-subtext-announcement">
-        {fallbackInstructionText || 'Fetching active schema states from system pipeline. Standby.'}
-      </p>
+    <div className="modal-canvas-frame">
+      <div className="modal-body-wrapper">
+        <h3>{operationMode === 'ADD' ? 'Log New Stock Resource' : 'Modify Record Parameters'}</h3>
+        <input type="text" defaultValue={selectedRecord?.name} id="form-field-name" placeholder="Item Label Name" />
+        <input type="number" defaultValue={selectedRecord?.price} id="form-field-price" placeholder="Retail Value Cost" />
+        <button onClick={() => onApplySave({ name: document.getElementById('form-field-name').value })}>Execute Write</button>
+        <button onClick={onDismiss}>Dismiss</button>
+      </div>
     </div>
   );
 };
 
-export const ContextualEmptyStatePlaceholder = ({ contentArrayReference, explanationDisplayString }) => {
-  if (contentArrayReference && contentArrayReference.length > 0) return null;
+export const SoftDeleteConfirmDialog = ({ isOpen, targetItemName, onConfirmSoftDelete, onDismiss }) => {
+  if (!isOpen) return null;
+
+export const DeletedItemsPage = ({ trashCatalogBin = [], onTriggerRestoration }) => {
   return (
-    <div className="responsive-empty-state-card-container">
-      <div className="empty-box-graphics-icon">📭</div>
-      <h4>Empty Record Matrix Intersection</h4>
-      <p>{explanationDisplayString || 'No operational tracking entities mapped to this viewport configuration grid.'}</p>
+    <div className="dialog-danger-zone">
+      <p>Flag item <strong>{targetItemName}</strong> for soft-delete removal parameters?</p>
+      <button onClick={onConfirmSoftDelete}>Yes, Purge Record</button>
+      <button onClick={onDismiss}>Halt Command</button>
     </div>
   );
 };
