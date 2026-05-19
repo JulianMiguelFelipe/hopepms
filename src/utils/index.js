@@ -1,66 +1,44 @@
-// src/pages/LoginPage.jsx (Version A - Improved)
-import React, { useState } from 'react';
+// src/pages/ReportsPage.jsx
+import React from 'react';
 
-export const LoginPage = ({ onLogin, onGoogleLogin }) => {
-  // Pinagsama natin sa isang object para mas malinis ang state management
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { type, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      // Hihintayin natin matapos yung login process
-      await onLogin(formData);
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false); // Babalik sa normal ang button kahit mag-success o error
-    }
-  };
-
+export const ProductReportPage = ({ analyticMetrics = [] }) => {
   return (
-    <div className="auth-card">
-      <h2>Welcome Back</h2>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="email" 
-          placeholder="Email Address" 
-          value={formData.email} 
-          onChange={handleChange} 
-          disabled={isLoading} // Hindi pwedeng i-edit habang naglo-load
-          required 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={formData.password} 
-          onChange={handleChange} 
-          disabled={isLoading}
-          required 
-        />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Signing In...' : 'Sign In'}
-        </button>
-      </form>
-      
-      <div className="divider">or</div>
-      
-      <button 
-        onClick={onGoogleLogin} 
-        className="google-btn"
-        disabled={isLoading}
-      >
-        Continue with Google
-      </button>
+    <div className="analytics-dashboard-page">
+      <div className="analytics-identity-header">
+        <h2>System Document ID Log: REP_001</h2>
+        <span>Status Report Framework Engine Activated</span>
+      </div>
+
+      <div className="metric-tiles-layout-grid">
+        {analyticMetrics.map(metric => (
+          <div key={metric.id} className="tile-card-metric">
+            <h5>Metric Code Group: {metric.categoryGroup}</h5>
+            <div className="data-numerical-large">{metric.totalEvaluatedUnits} units</div>
+            <p className="card-subtext-label">Active Database Calculations Verified</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const TopSellingPage = ({ leaderboardsData = [] }) => {
+  return (
+    <div className="analytics-dashboard-page spacing-block-top">
+      <div className="analytics-identity-header">
+        <h2>System Document ID Log: REP_002</h2>
+        <span>Velocity Trends Inventory Mapping Channel</span>
+      </div>
+
+      <div className="ordered-leaderboard-list">
+        {leaderboardsData.map((product, placement) => (
+          <div key={product.id} className="leaderboard-row-strip">
+            <span className="placement-rank-index">Rank Assignment #{placement + 1}</span>
+            <div className="product-identity-name">{product.name}</div>
+            <div className="sales-tally-count">Volumetric Throughput: <strong>{product.unitsMovedCount} items shipped</strong></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
